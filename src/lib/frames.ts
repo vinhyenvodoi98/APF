@@ -16,6 +16,19 @@ export interface FrameTypeDef {
   heightMm: number;
   /** Polygon vertices in mm, relative to bounding-box top-left (0,0) */
   points: [number, number][];
+  /**
+   * Effective left-contact x in mm (from bbox left).
+   * Used for inter-frame snap instead of bbox edge.
+   * For a rectangle this equals 0. For a trapezoid with a diagonal left side,
+   * this is the midpoint x of that diagonal — (topX + bottomX) / 2.
+   */
+  snapLeftMm: number;
+  /**
+   * Effective right-contact x in mm (from bbox left).
+   * For a rectangle this equals widthMm. For a trapezoid with a diagonal right side,
+   * this is the midpoint x of that diagonal — (topX + bottomX) / 2.
+   */
+  snapRightMm: number;
 }
 
 export const FRAME_TYPES: Record<FrameTypeId, FrameTypeDef> = {
@@ -25,6 +38,8 @@ export const FRAME_TYPES: Record<FrameTypeId, FrameTypeDef> = {
     widthMm: 65,
     heightMm: 94,
     points: [[0, 0], [65, 0], [65, 94], [0, 94]],
+    snapLeftMm: 0,
+    snapRightMm: 65,
   },
   'md-rect': {
     id: 'md-rect',
@@ -32,6 +47,8 @@ export const FRAME_TYPES: Record<FrameTypeId, FrameTypeDef> = {
     widthMm: 135,
     heightMm: 94,
     points: [[0, 0], [135, 0], [135, 94], [0, 94]],
+    snapLeftMm: 0,
+    snapRightMm: 135,
   },
   'lg-rect': {
     id: 'lg-rect',
@@ -39,22 +56,30 @@ export const FRAME_TYPES: Record<FrameTypeId, FrameTypeDef> = {
     widthMm: 205,
     heightMm: 94,
     points: [[0, 0], [205, 0], [205, 94], [0, 94]],
+    snapLeftMm: 0,
+    snapRightMm: 205,
   },
-  // Left side vertical; top edge (99 mm) wider than bottom (65 mm) — slants right at bottom
+  // Left side vertical; top wider (99 mm) than bottom (65 mm).
+  // Right diagonal runs from (99,0) to (65,94) → midpoint x = (99+65)/2 = 82 mm.
   'trap-a': {
     id: 'trap-a',
     label: 'Trapezoid A',
     widthMm: 99,
     heightMm: 94,
     points: [[0, 0], [99, 0], [65, 94], [0, 94]],
+    snapLeftMm: 0,    // vertical left side → contact at bbox edge
+    snapRightMm: 82,  // midpoint of right diagonal: (99+65)/2
   },
-  // Right side vertical; bottom edge (134 mm) wider than top (101 mm) — slants right at top
+  // Right side vertical; bottom wider (134 mm) than top (101 mm).
+  // Left diagonal runs from (33,0) to (0,94) → midpoint x = (33+0)/2 = 16.5 mm.
   'trap-b': {
     id: 'trap-b',
     label: 'Trapezoid B',
     widthMm: 134,
     heightMm: 94,
     points: [[33, 0], [134, 0], [134, 94], [0, 94]],
+    snapLeftMm: 16.5, // midpoint of left diagonal: (33+0)/2
+    snapRightMm: 134, // vertical right side → contact at bbox edge
   },
 };
 

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Group, Line, Image as KonvaImage, Rect, Text } from 'react-konva';
-import type Konva from 'konva';
-import { FRAME_TYPES, PX_PER_MM, pointsToPx, A4_WIDTH_PX, A4_HEIGHT_PX } from '../../lib/frames';
+import Konva from 'konva';
+import { FRAME_TYPES, PX_PER_MM, pointsToPx } from '../../lib/frames';
 import { useFrameStore, type PlacedFrame } from '../../store/useFrameStore';
 import { computeSnap, type SnapResult } from '../../lib/snap';
 
@@ -56,18 +56,26 @@ export function FrameNode({ frame, onSelect }: Props) {
     ctx.closePath();
   };
 
+  const dragSnapLeft  = ft.snapLeftMm  * PX_PER_MM;
+  const dragSnapRight = ft.snapRightMm * PX_PER_MM;
+
   function getOtherRects() {
-    return useFrameStore.getState().frames.map((f) => ({
-      id: f.id,
-      x: f.x,
-      y: f.y,
-      w: FRAME_TYPES[f.typeId].widthMm * PX_PER_MM,
-      h: FRAME_TYPES[f.typeId].heightMm * PX_PER_MM,
-    }));
+    return useFrameStore.getState().frames.map((f) => {
+      const fType = FRAME_TYPES[f.typeId];
+      return {
+        id: f.id,
+        x: f.x,
+        y: f.y,
+        w: fType.widthMm  * PX_PER_MM,
+        h: fType.heightMm * PX_PER_MM,
+        snapLeft:  fType.snapLeftMm  * PX_PER_MM,
+        snapRight: fType.snapRightMm * PX_PER_MM,
+      };
+    });
   }
 
   function dragBoundFunc(pos: { x: number; y: number }) {
-    const result = computeSnap(pos.x, pos.y, w, h, getOtherRects(), frame.id);
+    const result = computeSnap(pos.x, pos.y, w, h, getOtherRects(), frame.id, dragSnapLeft, dragSnapRight);
     lastSnap.current = result;
     return { x: result.x, y: result.y };
   }

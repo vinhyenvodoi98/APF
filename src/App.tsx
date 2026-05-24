@@ -51,16 +51,24 @@ export function App() {
     const rawY = e.clientY - rect.top - dragH / 2;
 
     // Build rects from current frames for snap computation
-    const others = useFrameStore.getState().frames.map((f) => ({
-      id: f.id,
-      x: f.x,
-      y: f.y,
-      w: FRAME_TYPES[f.typeId].widthMm * PX_PER_MM,
-      h: FRAME_TYPES[f.typeId].heightMm * PX_PER_MM,
-    }));
+    const others = useFrameStore.getState().frames.map((f) => {
+      const fType = FRAME_TYPES[f.typeId];
+      return {
+        id: f.id,
+        x: f.x,
+        y: f.y,
+        w: fType.widthMm  * PX_PER_MM,
+        h: fType.heightMm * PX_PER_MM,
+        snapLeft:  fType.snapLeftMm  * PX_PER_MM,
+        snapRight: fType.snapRightMm * PX_PER_MM,
+      };
+    });
+
+    const dragSnapLeft  = ft.snapLeftMm  * PX_PER_MM;
+    const dragSnapRight = ft.snapRightMm * PX_PER_MM;
 
     // Apply snap (use a temporary id so it's excluded from nothing)
-    const { x, y } = computeSnap(rawX, rawY, dragW, dragH, others, '__new__');
+    const { x, y } = computeSnap(rawX, rawY, dragW, dragH, others, '__new__', dragSnapLeft, dragSnapRight);
 
     // Only add if within A4 (snap already clamps, so this is always true,
     // but we skip adding if the raw position was wildly outside the canvas)

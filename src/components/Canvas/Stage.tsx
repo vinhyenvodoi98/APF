@@ -77,7 +77,7 @@ export function Stage({ stageRef, onSelectFrame, isDropActive }: Props) {
               <path d="M20 36 L10 36 M14 32 L10 36 L14 40" stroke="#374151" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <div className="text-center">
-              <p className="text-sm font-medium text-gray-500">Blank comic page</p>
+              <p className="text-sm font-medium text-gray-500">Blank manga page</p>
               <p className="text-xs text-gray-400 mt-1">Drag frames from the left panel to start</p>
             </div>
           </div>
